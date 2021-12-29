@@ -1,0 +1,57 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  width: 100%;
+  height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#draggable {
+  position: fixed;
+  height: 20px;
+  width: calc(100% - 100px);
+  top: 0px;
+  left: 0px;
+  -webkit-app-region: drag;
+  -webkit-user-drag: element;
+  z-index: 1000;
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+:root {
+  --color-text: black;
+  --color-background: lightgray;
+  --color-light: #FAF9E0;
+  --color-light-secondary: #FAF8DC;
+  --color-light-primary: #F7F4C9;
+  --color-sticky-yellow: #FFFD98;
+  --color-dark-primary: #171C27;
+  --color-dark-secondary: #262E40;
+  --color-accent-blue: #111D2C;
+}

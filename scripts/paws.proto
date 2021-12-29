@@ -1,0 +1,72 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "/proto"; 
+
+// Generics
+
+message Empty {}
+
+// Engine
+message Notification {
+  string message = 1;
+  StatusLevel level = 2;
+}
+
+enum StatusLevel {
+  Log = 0;
+  Warning = 1;
+  Error = 2;
+}
+
+message EngineStatus {
+  bool connected = 1;
+  string version = 2;
+  string hwid = 3;
+}
+
+service EngineHandler {
+  rpc Init(Empty) returns (Empty) {}
+  rpc Notify(Empty) returns (stream Notification) {}
+  rpc Listen(Empty) returns (stream EngineStatus) {}
+}
+
+// Wallet Handler
+message Wallet {
+  string address = 1;
+}
+
+message KeystoreOptions {
+  optional string passphrase = 1;
+  optional string mnemonic = 2;
+  optional string address = 3;
+}
+
+message KeystoreResponse {
+  repeated string accounts = 1;
+}
+
+message MnemonicResponse {
+  string mnemonic = 1;
+}
+
+// Generics
+message GenericResponse {
+  ReponseStatus status = 1;
+  string message = 2;
+}
+
+enum ReponseStatus {
+  OK = 0;
+}
+
+service VaultHandler {
+  rpc Init(KeystoreOptions)  returns (KeystoreResponse) {}
+  rpc CreateWallet(KeystoreOptions) returns (KeystoreResponse) {}
+  rpc ImportWallet(KeystoreOptions) returns (KeystoreResponse) {}
+  rpc CreateHDWallet(KeystoreOptions) returns (KeystoreResponse) {}
+  rpc DeleteWallet(KeystoreOptions) returns (KeystoreResponse) {}
+  rpc GenerateMnemonic(KeystoreOptions) returns (MnemonicResponse) {}
+  rpc GetWallets(KeystoreOptions) returns (KeystoreResponse) {}
+  rpc ListenWallets(Empty) returns (stream KeystoreResponse) {}
+}
