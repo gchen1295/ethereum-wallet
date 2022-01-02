@@ -27,17 +27,26 @@ type Client struct {
 	http.Client
 }
 
-func NewClient(opts *Options, proxy *url.URL) *Client {
+func NewClient(opts *Options, proxy string) (*Client, error) {
+	var proxyUrl *url.URL
+	var err error
+	if proxy != "" {
+		proxyUrl, err = url.Parse(proxy)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	jar, err := cookiejar.New(nil)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	return &Client{
 		Client: http.Client{
 			Jar:       jar,
-			Transport: NewTransport(opts, proxy),
+			Transport: NewTransport(opts, proxyUrl),
 			Timeout:   10 * time.Second,
 		},
-	}
+	}, nil
 }

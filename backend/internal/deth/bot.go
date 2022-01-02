@@ -40,6 +40,7 @@ type BotOptions struct {
 }
 
 func NewBot(opts BotOptions, ctx context.Context) (*Bot, error) {
+	log.Println(opts)
 	client, err := NewClient(opts.EtherscanToken, opts.RelayLink)
 	if err != nil {
 		return nil, err

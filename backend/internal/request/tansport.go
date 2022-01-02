@@ -38,7 +38,7 @@ func NewTransport(opts *Options, proxy *url.URL) *Transport {
 			// UserAgent: "Go-http-client/1.1",
 			
 		},
-		ClientHelloID:      utls.HelloChrome_83,
+		ClientHelloID:      utls.HelloIOS_12_1,
 		HTTP2FrameSettings: *http.FrameSettingsChrome,
 		// chromePseudoHeaders  = []string{":method", ":authority", ":scheme", ":path"}
 		// fireFoxPsuedoHeaders = []string{":method", ":path", ":authority", ":scheme"}

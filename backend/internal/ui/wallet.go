@@ -38,35 +38,34 @@ var addWalletQuestions = []*survey.Question{
 }
 
 type AddWalletForm struct {
-	mode       string
-	seed       []byte
-	passphrase []byte
+	Mode       string
+	Seed       string
+	Passphrase string
 }
 
+// AddWalletPrompt prompts the user to import or create a wallet.
 func AddWalletPrompt() (form *AddWalletForm, err error) {
 	form = &AddWalletForm{}
-	modePrompt := &survey.Select{
+
+	if err = survey.AskOne(&survey.Select{
 		Message: "Import or Create a Wallet:",
 		Options: []string{"Import Wallet", "New Wallet"},
 		Default: "Import Wallet",
-	}
-
-	if err = survey.AskOne(modePrompt, &form.mode); err != nil {
+	}, &form.Mode); err != nil {
 		return nil, err
 	}
 
-	switch form.mode {
+	switch form.Mode {
 	case "Import Wallet":
-		seed := ""
-		if err = survey.AskOne(&survey.Input{Message: "Input seed phrase to import."}, &seed, survey.WithValidator(survey.MinLength(40))); err != nil {
+		if err = survey.AskOne(&survey.Input{Message: "Input seed phrase to import.\n"}, &form.Seed, survey.WithValidator(survey.MinLength(40))); err != nil {
 			return nil, err
 		}
 
 	case "New Wallet":
-		seed := wallet.NewMnemonic()
+		form.Seed = wallet.NewMnemonic()
 		confirm := false
 
-		if err = survey.AskOne(&survey.Confirm{Message: fmt.Sprintf("%s\n\nSAVE YOUR SEED PHRASE SOMEWHERE SECURE. PLEASE CONFIRM DO NOT CONTINUE UNTIL YOU HAVE IT SAVE!", seed)}, confirm); err != nil {
+		if err = survey.AskOne(&survey.Confirm{Message: fmt.Sprintf("%s\n\nSAVE YOUR SEED PHRASE SOMEWHERE SECURE. PLEASE CONFIRM DO NOT CONTINUE UNTIL YOU HAVE IT SAVE!", form.Seed)}, &confirm); err != nil {
 			return nil, err
 		}
 		if !confirm {
@@ -75,22 +74,36 @@ func AddWalletPrompt() (form *AddWalletForm, err error) {
 
 		confirm = false
 
-		if err = survey.AskOne(&survey.Confirm{Message: fmt.Sprintf("%s\n\nCONFIRM AGAIN.", seed)}, confirm); err != nil {
+		if err = survey.AskOne(&survey.Confirm{Message: "CONFIRM AGAIN."}, &confirm); err != nil {
 			return nil, err
 		}
 		if !confirm {
 			return nil, ErrFailConfirm
 		}
 
-		form.seed = []byte(seed)
-
 	default:
 		return nil, errors.New("unknown choice")
 	}
 
-	if err = survey.AskOne(&survey.Input{Message: "Input a passphrase between 8 - 14 characters"}, &form.mode); err != nil {
+	if err = survey.AskOne(&survey.Password{Message: "Input a passphrase between 8 - 14 characters: "}, &form.Passphrase); err != nil {
 		return nil, err
 	}
 
-	return
+	match := false
+	attempts := 0
+	confirmation := ""
+
+	for !match && attempts < 3 {
+		if err = survey.AskOne(&survey.Password{Message: "Confirm passphrase: "}, &confirmation); err != nil {
+			return nil, err
+		}
+
+		if confirmation == form.Passphrase {
+			return
+		}
+
+		attempts++
+	}
+
+	return nil, errors.New("failed passphrase confirmation")
 }

@@ -74,11 +74,16 @@ func NewClient(etherscanToken, relayLink string) (*Client, error) {
 		return nil, err
 	}
 
+	rclient, err := request.NewClient(&request.Options{
+		DisableDecompression: false,
+		UserAgent:            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
+	}, "http://192.168.0.30:8888")
+	if err != nil {
+		return nil, err
+	}
+
 	return &Client{
-		request: request.NewClient(&request.Options{
-			DisableDecompression: false,
-			UserAgent:            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
-		}, nil),
+		request: rclient,
 		hostURL: &url.URL{
 			Scheme: "https",
 			Host:   "api.etherscan.io",
@@ -135,11 +140,11 @@ func (c *Client) GetGasEstimate() (*OracleData, error) {
 		return nil, err
 	}
 
-	if result.Code == 200 {
-		return &result.Data, nil
+	if result.Code != 200 {
+		return nil, errors.New("failed to fetch gas price")
 	}
 
-	return nil, errors.New("failed to fetch gas price")
+	return &result.Data, nil
 }
 
 // SendFlashbotBundle sends a bundle of txns to the flashbots relay.
